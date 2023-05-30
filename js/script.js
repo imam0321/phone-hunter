@@ -1,24 +1,33 @@
 // Load Phones
-const loadPhones = async (searchText) => {
+const loadPhones = async (searchText, dataLimit) => {
   const url = `https://openapi.programming-hero.com/api/phones?search=${searchText}`;
   const res = await fetch(url);
   const data = await res.json();
-  displayPhones(data.data);
+  displayPhones(data.data, dataLimit);
 };
 // Display Phones
-const displayPhones = (phones) => {
+const displayPhones = (phones, dataLimit) => {
   const phoneContainer = document.getElementById("phone-container");
   phoneContainer.innerHTML = "";
-  phones = phones.slice(0, 5);
+
+  // show all button
+  const showAll = document.getElementById("show-all");
+  if (dataLimit && phones.length > 5) {
+    phones = phones.slice(0, 5);
+    showAll.classList.remove("d-none");
+  } else {
+    showAll.classList.add("d-none");
+  }
+
   // display no phone Worning message
-  const noPhone = document.getElementById('no-phone-message');
-  if(phones.langth === 0){
-    noPhone.classList.remove('d-none');
+  const noPhone = document.getElementById("no-phone-message");
+  if (phones.length === 0) {
+    noPhone.classList.remove("d-none");
+  } else {
+    noPhone.classList.add("d-none");
   }
-  else{
-    noPhone.classList.add('d-none');
-  }
-  // display all phones 
+
+  // display all phones
   phones.forEach((phone) => {
     const phoneDiv = document.createElement("div");
     phoneDiv.classList.add("col");
@@ -33,12 +42,43 @@ const displayPhones = (phones) => {
     `;
     phoneContainer.appendChild(phoneDiv);
   });
+  // Stop spinner
+  toggleSpinner(false);
 };
 // Search Phones
-document.getElementById("btn-search").addEventListener("click", function () {
+const processSearch = (dataLimit) => {
+  // Start spinner
+  toggleSpinner(true);
   const searchField = document.getElementById("search-field");
   const searchText = searchField.value;
-  loadPhones(searchText);
+  loadPhones(searchText, dataLimit);
+};
+
+// Search btn handle
+document.getElementById("btn-search").addEventListener("click", function () {
+  processSearch(5);
 });
 
-loadPhones("iphone");
+// Search input field enter key handler
+document
+  .getElementById("search-field")
+  .addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      processSearch(5);
+    }
+  });
+
+const toggleSpinner = (isLoader) => {
+  const loaderSection = document.getElementById("loader");
+  if (isLoader) {
+    loaderSection.classList.remove("d-none");
+  } else {
+    loaderSection.classList.add("d-none");
+  }
+};
+
+document.getElementById("btn-show-all").addEventListener("click", function () {
+  processSearch();
+});
+
+// loadPhones("iphone");
