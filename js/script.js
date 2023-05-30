@@ -26,7 +26,6 @@ const displayPhones = (phones, dataLimit) => {
   } else {
     noPhone.classList.add("d-none");
   }
-
   // display all phones
   phones.forEach((phone) => {
     const phoneDiv = document.createElement("div");
@@ -37,6 +36,7 @@ const displayPhones = (phones, dataLimit) => {
       <div class="card-body">
         <h5 class="card-title">${phone.phone_name}</h5>
         <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+        <button onclick="loadPhoneDetails('${phone.slug}')" id="btn-search" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#phoneDetailModal">Show Details</button>
       </div>
     </div>
     `;
@@ -53,12 +53,10 @@ const processSearch = (dataLimit) => {
   const searchText = searchField.value;
   loadPhones(searchText, dataLimit);
 };
-
 // Search btn handle
 document.getElementById("btn-search").addEventListener("click", function () {
   processSearch(5);
 });
-
 // Search input field enter key handler
 document
   .getElementById("search-field")
@@ -81,4 +79,28 @@ document.getElementById("btn-show-all").addEventListener("click", function () {
   processSearch();
 });
 
+// Phone details
+const loadPhoneDetails = async (id) => {
+  const url = `https://openapi.programming-hero.com/api/phone/${id}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  displayPhoneDetails(data.data);
+  console.log(data.data);
+};
+const displayPhoneDetails = (phone) => {
+  const modalTitle = document.getElementById("phoneDetailModalLabel");
+  modalTitle.innerText = phone.name;
+  const phoneDetails = document.getElementById("phone-details");
+  phoneDetails.innerHTML = `
+  <p>Release Date: ${
+    phone.releaseDate ? phone.releaseDate : "No Release Date Found"
+  }</p>
+  <p>Storage: ${
+    phone.mainFeatures ? phone.mainFeatures.storage : "No Storage Found"
+  }</p>
+  <p>Bluetooth: ${
+    phone.others ? phone.others.Bluetooth : "No Bluetooth Found"
+  }</p>
+  `;
+};
 // loadPhones("iphone");
